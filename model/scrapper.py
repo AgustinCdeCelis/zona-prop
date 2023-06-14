@@ -75,6 +75,62 @@ def data(products):
 
     return product_list
 
+def data_important(prod):
+    cont_product=0
+    product_list=[]
+    for i in prod:
+        #cuenta producto
+        cont_product+=1
+        #this is the count fraction to check the scrapped elements
+        print(f'{cont_product} / {len(prod)} Elemento escrapeado')
+        #diccionario del dato
+        #fecha tabla
+        today = date.today() #hold the date
+        d1 = today.strftime("%Y%m%d")
+        current_product={'fecha':d1,'tipo_transacción':'venta_inmueble'}
+        #codigo html del producto
+        codigo_html = i.get_attribute('innerHTML')
+        soup=BeautifulSoup(codigo_html,'html.parser')
+        #precio inicial-->mas barato
+        precio_in= soup.find('div',attrs={'data-qa':'POSTING_CARD_PRICE_FROM'}).text
+        current_product['precio_inicial']=precio_in
+        #precio final-->más caro
+        precio_fin= soup.find('div',attrs={'data-qa':'POSTING_CARD_PRICE_TO'}).text
+        current_product['precio_fin']=precio_fin
+        try:
+            data= soup.find('div',attrs={'data-qa':'POSTING_CARD_FEATURES'})
+            sub_cats=data.find_all('span')
+            datos=''
+            for u in sub_cats:
+            
+                datos+=u.text+' '
+            
+            current_product['datos']= datos
+        except:
+            current_product['datos']=None
+
+        amenities=soup.find_all('span',attrs={'color':'#3A0C3D'})
+        datos2=''
+        for y in amenities:
+
+            datos+=y.text+' '
+
+        direccion=soup.find('a',attrs={'data-qa':'POSTING_CARD_LOCATION'}).text
+        current_product['direccion']= direccion
+
+        imagen=soup.find('img')['src']
+        current_product['imagen']=imagen
+
+        product_list.append(current_product)
+
+    return product_list
+
+        
+
+
+
+
+
 
 
 
@@ -103,10 +159,13 @@ def full_data():
     full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
 
     elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
-
     print(len(elementos))
     final_work=[]#guardo todo acá
     final_work.extend(data(elementos))
+
+    elementos_importantes =driver.find_elements,'div[data-qa="posting DEVELOPMENT"]'
+    print(elementos_importantes)
+
 
     for i in range(2,number_pages+1):
         link_modified= f'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal-pagina-{i}.html'
