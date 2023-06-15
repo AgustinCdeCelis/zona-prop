@@ -70,6 +70,8 @@ def data(products):
         except:
             current_product['descripcion']=None
 
+        
+
 
         product_list.append(current_product)
 
@@ -92,11 +94,17 @@ def data_important(prod):
         codigo_html = i.get_attribute('innerHTML')
         soup=BeautifulSoup(codigo_html,'html.parser')
         #precio inicial-->mas barato
-        precio_in= soup.find('div',attrs={'data-qa':'POSTING_CARD_PRICE_FROM'}).text
-        current_product['precio_inicial']=precio_in
+        try:
+            precio_in= soup.find('div',attrs={'data-qa':'POSTING_CARD_PRICE_FROM'}).text
+            current_product['precio_inicial']=precio_in
+        except:
+            current_product['precio_inicial']=None
         #precio final-->más caro
-        precio_fin= soup.find('div',attrs={'data-qa':'POSTING_CARD_PRICE_TO'}).text
-        current_product['precio_fin']=precio_fin
+        try:
+            precio_fin= soup.find('div',attrs={'data-qa':'POSTING_CARD_PRICE_TO'}).text
+            current_product['precio_fin']=precio_fin
+        except:
+            current_product['precio_fin']=None
         try:
             data= soup.find('div',attrs={'data-qa':'POSTING_CARD_FEATURES'})
             sub_cats=data.find_all('span')
@@ -108,18 +116,25 @@ def data_important(prod):
             current_product['datos']= datos
         except:
             current_product['datos']=None
+        try:
+            amenities=soup.find_all('span',attrs={'color':'#3A0C3D'})
+            datos2=''
+            for y in amenities:
 
-        amenities=soup.find_all('span',attrs={'color':'#3A0C3D'})
-        datos2=''
-        for y in amenities:
-
-            datos+=y.text+' '
-
-        direccion=soup.find('a',attrs={'data-qa':'POSTING_CARD_LOCATION'}).text
-        current_product['direccion']= direccion
-
-        imagen=soup.find('img')['src']
-        current_product['imagen']=imagen
+                datos+=y.text+' '
+            current_product['amenities']=datos2
+        except:
+            current_product['amenities']=None
+        try:
+            direccion=soup.find('a',attrs={'data-qa':'POSTING_CARD_LOCATION'}).text
+            current_product['direccion']= direccion
+        except:
+            current_product['direccion']=None
+        try:
+            imagen=soup.find('img')['src']
+            current_product['imagen']=imagen
+        except:
+            current_product['imagen']=None
 
         product_list.append(current_product)
 
@@ -145,26 +160,35 @@ def full_data():
     driver = webdriver.Chrome(service=s)
     driver.get(link)
     driver.maximize_window()
+    
     time.sleep(3)
     cantidad =driver.find_element(By.CSS_SELECTOR,'.sc-5z85om-2.ePSQiV').text
     numero= int(cantidad.split(' ')[0].replace('.',''))
-    print(numero)
-    number_pages = numero//20+1
-    print(number_pages)
+    #print(numero)
+    #number_pages = numero//20+1
+    number_pages= 300
+    
+    print(f'cantidad de paginas: {number_pages}')
     
 
 
+    cont=1
+    print(f'pagina n°{cont}')
     time.sleep(2)
 
     full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
 
     elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
+    print(elementos)
     print(len(elementos))
     final_work=[]#guardo todo acá
     final_work.extend(data(elementos))
+    
 
-    elementos_importantes =driver.find_elements,'div[data-qa="posting DEVELOPMENT"]'
-    print(elementos_importantes)
+    elementos_importantes =driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting DEVELOPMENT"]')
+    print(f'cantidad de elementos_importantes:{len(elementos_importantes)}')
+    work_important=[] #importantes
+    work_important.extend(data_important(elementos_importantes))
 
 
     for i in range(2,number_pages+1):
@@ -174,15 +198,31 @@ def full_data():
         driver = webdriver.Chrome(service=s)
 
         driver.get(link_modified)
-        time.sleep(3)
-        full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
+        cont+=1
+        print(f'pagina n°{cont}')
+        #time.sleep(3)
+        driver.implicitly_wait(5)
+        #wait = WebDriverWait(driver, 6)
+        #full_elem = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.postings-container')))
 
+        full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
+        driver.implicitly_wait(2)
         elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
+        #elementos = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div[data-qa="posting PROPERTY"]')))
         final_work.extend(data(elementos))
+        #elementos_importantes = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div[data-qa="posting DEVELOPMENT"]')))
+        elementos_importantes =driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting DEVELOPMENT"]')
+        print(f'cantidad de elementos_importantes:{len(elementos_importantes)}')
+        work_important=[] #importantes
+        work_important.extend(data_important(elementos_importantes))
+        
+        
+        
+        
     
 
         driver.quit()
 
-    return final_work
+    return final_work,work_important
 
 
