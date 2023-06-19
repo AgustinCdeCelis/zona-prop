@@ -41,11 +41,12 @@ def data(products):
         try:
             data= soup.find('div',attrs={'data-qa':'POSTING_CARD_FEATURES'})
             sub_cats=data.find_all('span')
-            datos=''
+            datos=""
             for u in sub_cats:
             
                 datos+=u.text+' '
-            
+                
+            print(datos)
             current_product['datos']= datos
         except:
             current_product['datos']=None
@@ -149,8 +150,8 @@ def data_important(prod):
 
 
 
-def full_data():
-    link = 'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal.html'
+def main(link):
+    #link = 'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal.html'
     PATH= "/usr/lib/chromium-browser/chromedriver"
     s = Service(PATH)
     #chrome_options = Options()
@@ -165,8 +166,8 @@ def full_data():
     cantidad =driver.find_element(By.CSS_SELECTOR,'.sc-5z85om-2.ePSQiV').text
     numero= int(cantidad.split(' ')[0].replace('.',''))
     #print(numero)
-    #number_pages = numero//20+1
-    number_pages= 300
+    number_pages = numero//20+1
+    #number_pages= 5
     
     print(f'cantidad de paginas: {number_pages}')
     
@@ -191,38 +192,53 @@ def full_data():
     work_important.extend(data_important(elementos_importantes))
 
 
+    link_mod= link.rsplit('.',1)[0]
+    print(link_mod)
+
+    driver.quit()
+
     for i in range(2,number_pages+1):
-        link_modified= f'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal-pagina-{i}.html'
+        #link_modified= f'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal-pagina-{i}.html'
+        link_modified= f'{link_mod}-pagina-{i}.html'
         s = Service(PATH)
+
+        if i % 100==0:
+            time.sleep(30)
+        elif i %500==0:
+            time.sleep(60)
+
+        elif i % 1000==0:
+            time.sleep(60)
+        else:
+            pass
+
+
 
         driver = webdriver.Chrome(service=s)
 
         driver.get(link_modified)
         cont+=1
         print(f'pagina n°{cont}')
-        #time.sleep(3)
-        driver.implicitly_wait(5)
-        #wait = WebDriverWait(driver, 6)
-        #full_elem = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.postings-container')))
+        
+        driver.implicitly_wait(30)
+        
 
         full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
         driver.implicitly_wait(2)
         elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
-        #elementos = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div[data-qa="posting PROPERTY"]')))
-        final_work.extend(data(elementos))
-        #elementos_importantes = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div[data-qa="posting DEVELOPMENT"]')))
+        
+        final_work.extend(data(elementos)) #hold data first list
+        
         elementos_importantes =driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting DEVELOPMENT"]')
         print(f'cantidad de elementos_importantes:{len(elementos_importantes)}')
-        work_important=[] #importantes
-        work_important.extend(data_important(elementos_importantes))
+        
+        work_important.extend(data_important(elementos_importantes)) #hold data second list
         
         
-        
-        
-    
-
         driver.quit()
 
     return final_work,work_important
 
 
+if __name__=='__main__':
+    main()
