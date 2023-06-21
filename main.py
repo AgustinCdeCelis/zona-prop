@@ -5,9 +5,9 @@ from datetime import date
 from model.scrapper import main
 
 #link='https://www.zonaprop.com.ar/inmuebles-venta-neuquen.html'
-#link= 'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal.html'
+link= 'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal.html'
 #link='https://www.zonaprop.com.ar/inmuebles-venta-mendoza.html'
-link='https://www.zonaprop.com.ar/inmuebles-alquiler-mendoza.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-mendoza.html'
 
 
 start_index = link.find("/", link.find("/", link.find("/") + 1) + 1) + 1

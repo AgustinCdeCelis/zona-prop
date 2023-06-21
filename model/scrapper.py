@@ -46,7 +46,7 @@ def data(products):
             
                 datos+=u.text+' '
                 
-            print(datos)
+            
             current_product['datos']= datos
         except:
             current_product['datos']=None
@@ -180,7 +180,7 @@ def main(link):
     full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
 
     elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
-    print(elementos)
+    
     print(len(elementos))
     final_work=[]#guardo todo acá
     final_work.extend(data(elementos))
@@ -201,38 +201,72 @@ def main(link):
         #link_modified= f'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal-pagina-{i}.html'
         link_modified= f'{link_mod}-pagina-{i}.html'
         s = Service(PATH)
-
-        if i % 100==0:
-            time.sleep(30)
-        elif i %500==0:
-            time.sleep(60)
-
-        elif i % 1000==0:
-            time.sleep(60)
+        if i % 1000==0:
+           time.sleep(600)
+        elif i % 500 ==0:
+            time.sleep(420)
+        elif i % 250==0:
+            time.sleep(300)
+        elif i % 100 ==0:
+            time.sleep(300)
+        elif i % 10 ==0:
+            time.sleep(20)
+        elif i % 5 ==0:
+            time.sleep(15)
         else:
             pass
-
-
 
         driver = webdriver.Chrome(service=s)
 
         driver.get(link_modified)
+        
         cont+=1
         print(f'pagina n°{cont}')
         
         driver.implicitly_wait(30)
         
+        try: #si no carga lo hacemos de nuevo
+            full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
+            driver.implicitly_wait(30)
+            elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
+            print(len(elementos))
+            final_work.extend(data(elementos)) #hold data first list
+        
+            elementos_importantes =driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting DEVELOPMENT"]')
+            if len(elementos_importantes)!=0:
+                print(f'cantidad de elementos_importantes:{len(elementos_importantes)}')
+                work_important.extend(data_important(elementos_importantes)) #hold data second list
+            else:
+                print(f'no elements')
+                pass
+        
+        except:
+            time.sleep(240) #pongo tiempo de descanso y hago todo lo mismo nuevamente.
+            link_modified= f'{link_mod}-pagina-{i}.html'
+            s = Service(PATH)
+            driver = webdriver.Chrome(service=s)
+            driver.get(link_modified)
+            cont+=1
+            print(f'pagina n°{cont}')
+            driver.implicitly_wait(30)
+            full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
+            driver.implicitly_wait(30)
+            elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
+            print(len(elementos))
+            final_work.extend(data(elementos)) #hold data first list
+        
+            elementos_importantes =driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting DEVELOPMENT"]')
+            if len(elementos_importantes)!=0:
+                print(f'cantidad de elementos_importantes:{len(elementos_importantes)}')
+                work_important.extend(data_important(elementos_importantes)) #hold data second list
+            else:
+                print(f'no elements')
+                pass
 
-        full_elem= driver.find_element(By.CSS_SELECTOR,'div.postings-container')
-        driver.implicitly_wait(2)
-        elementos=driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting PROPERTY"]')
+
+
         
-        final_work.extend(data(elementos)) #hold data first list
         
-        elementos_importantes =driver.find_elements(By.CSS_SELECTOR,'div[data-qa="posting DEVELOPMENT"]')
-        print(f'cantidad de elementos_importantes:{len(elementos_importantes)}')
-        
-        work_important.extend(data_important(elementos_importantes)) #hold data second list
         
         
         driver.quit()
