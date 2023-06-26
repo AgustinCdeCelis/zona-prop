@@ -5,10 +5,20 @@ from datetime import date
 from model.scrapper import main
 
 #link='https://www.zonaprop.com.ar/inmuebles-venta-neuquen.html'
-link= 'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal.html'
+#link= 'https://www.zonaprop.com.ar/inmuebles-venta-capital-federal.html'
 #link='https://www.zonaprop.com.ar/inmuebles-venta-mendoza.html'
 #link='https://www.zonaprop.com.ar/inmuebles-alquiler-mendoza.html'
-
+#link= 'https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-capital-federal.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-buenos-aires-costa-atlantica.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-gba-norte.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-gba-oeste.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-buenos-aires-fuera-de-gba.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-neuquen.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-cordoba.html'
+#link='https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-rio-negro.html'
+#link= 'https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-mendoza.html'
+#link= 'https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-neuquen.html'
+link= 'https://www.zonaprop.com.ar/inmuebles-alquiler-temporal-entre-rios.html'
 
 start_index = link.find("/", link.find("/", link.find("/") + 1) + 1) + 1
 end_index = link.find(".", start_index)
